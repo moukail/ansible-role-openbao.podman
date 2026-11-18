@@ -1,0 +1,13 @@
+plugin_auto_download = true
+plugin_auto_register = true
+
+plugin "kms" "pkcs11" {
+  image = "{{ openbao_pkcs11.plugin_image }}@sha256:{{ openbao_pkcs11.plugin_sha256 }}"
+}
+
+seal "pkcs11" {
+  lib         = "{{ openbao_pkcs11.library }}"
+  token_label = "{{ openbao_pkcs11.token_label }}"
+  key_label   = "{{ openbao_pkcs11.key_label }}"
+  mechanism   = "{{ openbao_pkcs11.mechanism }}"
+}

@@ -1,0 +1,47 @@
+[Unit]
+Description=OpenBAO Server Container
+Wants=network-online.target
+After=network-online.target
+
+[Volume]
+VolumeName=openbao-plugins
+Label=app=openbao
+Label=purpose=Plugins
+
+[Volume]
+VolumeName=openbao-data
+Label=app=openbao
+Label=purpose=persistent-data
+
+[Container]
+ContainerName={{ openbao_container_name }}
+Image={{ openbao_image }}
+
+# OpenBao server command
+#Exec=server -dev -dev-no-store-token -config=/openbao/config/openbao.hcl
+
+Environment=BAO_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+
+# Container port
+PublishPort={{ openbao_port }}:8200
+
+# Persistent configuration and data
+#Volume=/opt/openbao/config:/openbao/config:ro,Z
+Volume=openbao-data:/openbao/data
+
+# PKCS#11 configuration
+{% if openbao_seal_type == 'pkcs11' %}
+EnvironmentFile=/etc/openbao/openbao.env
+Volume={{ softhsm_library }}:{{ softhsm_library }}
+{% endif %}
+
+# Podman logging
+GlobalArgs=--log-level=info
+
+[Service]
+Restart=always
+RestartSec=5
+TimeoutStartSec=900
+
+[Install]
+WantedBy=default.target

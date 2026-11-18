@@ -1,0 +1,8 @@
+---
+galaxy_info:
+  author: I Moukafih
+  description: Ansible Role for OpenBao with Quadlet
+  license: MIT
+  min_ansible_version: "2.1"
+  galaxy_tags:
+    - OpenBao

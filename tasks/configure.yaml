@@ -1,0 +1,23 @@
+---
+- name: Open OpenBAO port in firewall
+  become: true
+  ansible.posix.firewalld:
+    port: "{{ openbao_port }}/tcp"
+    permanent: true
+    state: enabled
+    immediate: true
+
+- name: Configure Shamir seal
+  ansible.builtin.set_fact:
+    openbao_seal_template: ""
+  when: openbao_seal_type == 'shamir'
+
+- name: Configure PKCS#11 seal
+  ansible.builtin.set_fact:
+    openbao_seal_template: seal-pkcs11.hcl.j2
+  when: openbao_seal_type == 'pkcs11'
+
+- name: Configure Transit seal
+  ansible.builtin.set_fact:
+    openbao_seal_template: seal-transit.hcl.j2
+  when: openbao_seal_type == 'transit'

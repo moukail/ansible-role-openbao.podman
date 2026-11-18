@@ -1,0 +1,11 @@
+ui = true
+
+storage "pebbledb" {
+  path = "/openbao/data"
+}
+
+#plugin_directory = "/openbao/file"
+
+{% if openbao_seal_type != 'shamir' %}
+{% include openbao_seal_template %}
+{% endif %}
