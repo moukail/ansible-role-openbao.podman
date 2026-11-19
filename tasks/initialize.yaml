@@ -1,9 +1,10 @@
 ---
 - name: Wait for OpenBAO to be accessible
   ansible.builtin.uri:
-    url: "http://{{ ansible_facts['default_ipv4']['address'] }}:{{ openbao_port }}/"
+    url: "https://{{ ansible_facts['default_ipv4']['address'] }}:{{ openbao_port }}/"
     method: GET
     status_code: 200
+    validate_certs: false
   register: openbao_health
   retries: 5
   delay: 3
@@ -11,8 +12,9 @@
 
 - name: Gather OpenBAO status information...
   ansible.builtin.uri:
-    url: "http://{{ ansible_facts['default_ipv4']['address'] }}:{{ openbao_port }}/v1/sys/init"
+    url: "https://{{ ansible_facts['default_ipv4']['address'] }}:{{ openbao_port }}/v1/sys/init"
     method: GET
+    validate_certs: false
     return_content: true
   register: openbao_init_status
   ignore_errors: true
@@ -23,8 +25,9 @@
 
 - name: Initialize OpenBao with Shamir
   ansible.builtin.uri:
-    url: "http://{{ ansible_facts['default_ipv4']['address'] }}:{{ openbao_port }}/v1/sys/init"
+    url: "https://{{ ansible_facts['default_ipv4']['address'] }}:{{ openbao_port }}/v1/sys/init"
     method: POST
+    validate_certs: false
     body_format: json
     body:
       secret_shares: "{{ openbao_shares }}"
@@ -34,7 +37,6 @@
   when:
     - not (openbao_init_status.json.initialized | bool)
     - openbao_seal_type == 'shamir'
-  no_log: true
 
 # ---------------------------------------------------------
 # SAVE AUTO-UNSEAL INITIALIZATION MATERIAL
@@ -42,8 +44,9 @@
 
 - name: Initialize OpenBao with auto-unseal
   ansible.builtin.uri:
-    url: "http://{{ ansible_facts['default_ipv4']['address'] }}:{{ openbao_port }}/v1/sys/init"
+    url: "https://{{ ansible_facts['default_ipv4']['address'] }}:{{ openbao_port }}/v1/sys/init"
     method: POST
+    validate_certs: false
     body_format: json
     body:
       recovery_shares: "{{ openbao_shares }}"
@@ -53,7 +56,6 @@
   when:
     - not (openbao_init_status.json.initialized | bool)
     - openbao_seal_type in ['pkcs11', 'transit']
-  no_log: true
 
 # ---------------------------------------------------------
 # SAVE SHAMIR INITIALIZATION MATERIAL
@@ -90,8 +92,9 @@
 # ---------------------------------------------------------
 - name: Check OpenBAO seal status
   ansible.builtin.uri:
-    url: "http://{{ ansible_facts['default_ipv4']['address'] }}:{{ openbao_port }}/v1/sys/seal-status"
+    url: "https://{{ ansible_facts['default_ipv4']['address'] }}:{{ openbao_port }}/v1/sys/seal-status"
     method: GET
+    validate_certs: false
     status_code: 200
   register: openbao_seal_status
 
@@ -101,8 +104,9 @@
 
 - name: Unseal OpenBAO
   ansible.builtin.uri:
-    url: "http://{{ ansible_facts['default_ipv4']['address'] }}:{{ openbao_port }}/v1/sys/unseal"
+    url: "https://{{ ansible_facts['default_ipv4']['address'] }}:{{ openbao_port }}/v1/sys/unseal"
     method: PUT
+    validate_certs: false
     body_format: json
     body:
       key: "{{ item }}"

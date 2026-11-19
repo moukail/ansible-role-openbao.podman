@@ -2,7 +2,8 @@
 # Supported: shamir, pkcs11, transit, kmip
 openbao_seal_type: shamir
 
-openbao_image: docker.io/openbao/openbao:2.7.2
+openbao_version: 2.7.2
+openbao_image: docker.io/openbao/openbao:{{ openbao_version }}
 openbao_container_name: openbao
 
 openbao_port: 8200
