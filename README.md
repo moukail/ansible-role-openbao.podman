@@ -1,3 +1,66 @@
+Ansible Role for Openbao
+=========
+
+Example Requirements
+--------------------
+
+```yml
+---
+collections:
+  - community.crypto
+  - containers.podman
+
+roles:
+  - name: cert-generator
+    src: git+https://github.com/moukail/ansible-role-cert-generator.git
+    version: main
+  - name: openbao.podman
+    src: git+https://github.com/moukail/ansible-role-openbao.podman.git
+    version: main
+
+```
+
+Example Playbook
+----------------
+
+```yaml
+---
+- name: Install Openbao
+  hosts: all
+  become: true
+
+  vars:
+    cert_ca_passphrase: "" # REQUIRED: provide through Ansible Vault (minimum 16 chars)
+    cert_ca_dir: /etc/pki/tls/
+    cert_ca_certificate_path: /etc/pki/tls/ca.crt
+
+    openbao_port: 8200
+
+  tasks:
+    - name: Generate certificate
+      ansible.builtin.include_role:
+        name: cert-generator
+      vars:
+        cert_dir: /opt/openbao/tls
+        cert_certificate_path: /opt/openbao/tls/server.crt
+        cert_key_path: /opt/openbao/tls/server.key
+
+    - name: Run Openbao with Podman
+      ansible.builtin.include_role:
+        name: openbao.podman
+
+  post_tasks:
+    - name: Show Openbao Keys
+      ansible.builtin.debug:
+        msg:
+          - "Openbao address: https://{{ ansible_facts['default_ipv4']['address'] }}:{{ openbao_port }}"
+          - "Openbao token: {{ openbao_token }}"
+          - "Openbao keys: {{ openbao_keys }}"
+      when: openbao_token is defined and openbao_keys is defined
+
+```
+
+```bash
 podman run -it --rm \
     -v /home/vagrant/.local/share/containers/storage/openbao-data:/var/lib/openbao:Z \
     -v /home/vagrant/certs:/certs:Z \
@@ -46,4 +109,4 @@ podman run \
 
 podman exec openbao1 vault version
 
-
+```
