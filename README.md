@@ -60,7 +60,34 @@ Example Playbook
 
 ```
 
+
 ```bash
+
+podman run \
+  --name openbao \
+  --replace \
+  -p 8200:8200 \
+  -v "$(pwd)/config:/openbao/config:ro,Z" \
+  -v "$(pwd)/tls:/openbao/tls:ro,Z" \
+  -v "$(pwd)/data:/openbao/data:U,Z" \
+  docker.io/openbao/openbao:2.7.2 \
+  server
+
+podman run \
+  --name openbao \
+  --replace \
+  -p 8200:8200 \
+  -v "$(pwd)/config:/openbao/config:ro,Z" \
+  -v "$(pwd)/tls:/openbao/tls:ro,Z" \
+  -v "$(pwd)/data:/openbao/data:U,Z" \
+  -v /etc/softhsm2.conf:/etc/softhsm2.conf:ro \
+  -v /opt/softhsm/tokens:/opt/softhsm/tokens \
+  -v /lib/softhsm/libsofthsm2.so:/lib/softhsm/libsofthsm2.so:ro \
+  docker.io/openbao/openbao:2.7.2 \
+  server
+
+
+
 podman run -it --rm \
     -v /home/vagrant/.local/share/containers/storage/openbao-data:/var/lib/openbao:Z \
     -v /home/vagrant/certs:/certs:Z \

@@ -26,6 +26,7 @@
   loop:
     - /opt/openbao
     - /opt/openbao/tls
+    - "{{ softhsm_token_dir }}"
 
 - name: Get Openbao container user information
   become: false
@@ -53,6 +54,7 @@
     - {path: /opt/openbao/data, mode: "0700"}
     - {path: /opt/openbao/tls, mode: "0750"}
     - {path: /opt/openbao/logs, mode: "0750"}
+    - {path: /opt/openbao/plugins, mode: "0750"}
 
 - name: Secure Openbao TLS private key
   become: true
@@ -74,14 +76,31 @@
     group: "{{ openbao_container_gid }}"
     mode: "0640"
 
+- name: Ensure SoftHSM token directory
+  become: true
+  become_method: containers.podman.podman_unshare
+  ansible.builtin.file:
+    path: "{{ softhsm_token_dir }}"
+    state: directory
+    recurse: true
+    owner: "{{ openbao_container_uid }}"
+    group: "{{ openbao_container_gid }}"
+    mode: "0700"
+  when: openbao_seal_type == 'pkcs11'
+
 - name: Generate OpenBAO env file
   become: true
   become_method: containers.podman.podman_unshare
   ansible.builtin.template:
     src: openbao.env.j2
-    dest: /opt/openbao/config/openbao.env"
+    dest: /opt/openbao/config/openbao.env
     owner: "{{ openbao_container_uid }}"
     group: "{{ openbao_container_gid }}"
+  when: openbao_seal_type == 'pkcs11'
+
+- name: Configure PKCS#11 seal
+  ansible.builtin.set_fact:
+    openbao_seal_template: seal-pkcs11.hcl.j2
   when: openbao_seal_type == 'pkcs11'
 
 - name: Create Podman Quadlet directory

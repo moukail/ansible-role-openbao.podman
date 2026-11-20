@@ -32,8 +32,13 @@ Volume=/opt/openbao/logs:/openbao/logs:Z
 
 # PKCS#11 configuration
 {% if openbao_seal_type == 'pkcs11' %}
-EnvironmentFile=/opt/openbao/config/openbao.env
-Volume={{ softhsm_library }}:{{ softhsm_library }}
+Volume=/opt/openbao/plugins:/openbao/plugins:Z
+Volume={{ openbao_pkcs11.library }}:/lib/softhsm/libsofthsm2.so:ro
+Volume={{ softhsm_conf_path }}:/etc/softhsm2.conf:ro
+Volume={{ softhsm_token_dir }}:{{ softhsm_token_dir }}:Z
+#EnvironmentFile=/opt/openbao/config/openbao.env
+Environment=SOFTHSM2_CONF=/etc/softhsm2.conf
+Environment=BAO_HSM_PIN={{ softhsm_user_pin }}
 {% endif %}
 
 # Podman logging
