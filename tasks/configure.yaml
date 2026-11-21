@@ -22,11 +22,6 @@
     openbao_seal_template: seal-kmip.hcl.j2
   when: openbao_seal_type == 'kmip'
 
-- name: Configure Transit seal
-  ansible.builtin.set_fact:
-    openbao_seal_template: seal-transit.hcl.j2
-  when: openbao_seal_type == 'transit'
-
 - name: Create Openbao base directory
   become: true
   ansible.builtin.file:

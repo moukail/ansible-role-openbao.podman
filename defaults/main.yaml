@@ -1,5 +1,5 @@
 ---
-# Supported: shamir, pkcs11, transit, kmip
+# Supported: shamir, pkcs11, kmip
 openbao_seal_type: shamir
 
 openbao_version: 2.7.2
@@ -12,7 +12,6 @@ openbao_threshold: 3
 
 cert_dir: /opt/openbao/tls
 
-# PKCS#11 configuration
 softhsm_conf_path: /etc/softhsm2.conf
 
 openbao_pkcs11:
@@ -25,4 +24,4 @@ openbao_pkcs11:
   pin: "{{ softhsm_user_pin | default('') }}"
 
 kmip_endpoint: "host.containers.internal:5696"
-kmip_key_id: "{{ kmip_key_id | default('1') }}"
+kmip_key_id: "1"
