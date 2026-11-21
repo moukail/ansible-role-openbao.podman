@@ -17,6 +17,11 @@
     openbao_seal_template: seal-pkcs11.hcl.j2
   when: openbao_seal_type == 'pkcs11'
 
+- name: Configure KMIP seal
+  ansible.builtin.set_fact:
+    openbao_seal_template: seal-kmip.hcl.j2
+  when: openbao_seal_type == 'kmip'
+
 - name: Configure Transit seal
   ansible.builtin.set_fact:
     openbao_seal_template: seal-transit.hcl.j2
@@ -33,7 +38,7 @@
     mode: "0750"
   loop:
     - /opt/openbao
-    - /opt/openbao/tls
+    - "{{ cert_dir }}"
     - "{{ softhsm_token_dir }}"
 
 - name: Get Openbao container user information
@@ -63,6 +68,17 @@
     - {path: /opt/openbao/tls, mode: "0750"}
     - {path: /opt/openbao/logs, mode: "0750"}
     - {path: /opt/openbao/plugins, mode: "0750"}
+
+- name: Copy TLS CA certificate
+  become: true
+  become_method: containers.podman.podman_unshare
+  ansible.builtin.copy:
+    remote_src: true
+    src: "{{ cert_ca_certificate_path }}"
+    dest: "{{ cert_dir }}/ca.crt"
+    owner: "{{ openbao_container_uid }}"
+    group: "{{ openbao_container_gid }}"
+    mode: "0644"
 
 - name: Ensure SoftHSM token directory
   become: true

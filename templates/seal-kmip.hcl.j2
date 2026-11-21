@@ -1,0 +1,12 @@
+seal "kmip" {
+  endpoint       = "{{ kmip_endpoint }}"
+  kms_key_id     = "{{ kmip_key_id }}"
+
+  client_cert    = "/openbao/tls/server.crt"
+  client_key     = "/openbao/tls/server.key"
+  ca_cert        = "/openbao/tls/ca.crt"
+
+  encrypt_alg    = "AES_GCM"
+
+  tls12_ciphers  = "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256"
+}

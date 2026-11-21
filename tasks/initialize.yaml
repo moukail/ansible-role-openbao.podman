@@ -55,7 +55,7 @@
   register: openbao_auto_init_results
   when:
     - not (openbao_init_status.json.initialized | bool)
-    - openbao_seal_type in ['pkcs11', 'transit']
+    - openbao_seal_type in ['pkcs11', 'kmip']
 
 # ---------------------------------------------------------
 # SAVE SHAMIR INITIALIZATION MATERIAL
@@ -82,7 +82,7 @@
     openbao_keys: "{{ openbao_auto_init_results.json.recovery_keys_base64 }}"
     cacheable: false
   when:
-    - openbao_seal_type in ['pkcs11', 'transit']
+    - openbao_seal_type in ['pkcs11', 'kmip']
     - openbao_auto_init_results is defined
     - not (openbao_auto_init_results.skipped | default(false) | bool)
   no_log: true

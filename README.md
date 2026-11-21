@@ -83,22 +83,33 @@ podman run \
   -v /etc/softhsm2.conf:/etc/softhsm2.conf:ro \
   -v /opt/softhsm/tokens:/opt/softhsm/tokens \
   -v /lib/softhsm/libsofthsm2.so:/lib/softhsm/libsofthsm2.so:ro \
-  docker.io/openbao/openbao:2.7.2 \
+  quay.io/openbao/openbao-ubi:2.7.2 \
   server
 
+mkdir -p /opt/pykmip/data
+mkdir -p /opt/pykmip/logs
 
+podman run -d \
+  --name pykmip \
+  --replace \
+  -p 5696:5696 \
+  -v /opt/pykmip/config/pykmip.conf:/etc/pykmip/pykmip.conf:ro,Z \
+  -v /opt/pykmip/certs:/etc/pykmip/certs:ro,Z \
+  -v /opt/pykmip/policies:/etc/pykmip/policies:ro,Z \
+  -v /opt/pykmip/data:/var/lib/pykmip:Z \
+  -v /opt/pykmip/logs:/var/log/pykmip:Z \
+  localhost/pykmip-server:latest
 
 podman run -it --rm \
-    -v /home/vagrant/.local/share/containers/storage/openbao-data:/var/lib/openbao:Z \
-    -v /home/vagrant/certs:/certs:Z \
-    -e BAO_SEAL_TYPE=kmip \
-    -e BAO_KMIP_WRAPPER_KEY_ID=1 \
-    -e BAO_KMIP_ENDPOINT=127.0.0.1:5696 \
-    -e BAO_KMIP_CA_CERT=/certs/ca.crt \
-    -e BAO_KMIP_CLIENT_CERT=/certs/client.crt \
-    -e BAO_KMIP_CLIENT_KEY=/certs/client.key \
+  --name openbao \
+  -p 8200:8200 \
+  -p 8201:8201 \
+  -v "$(pwd)/config/config.hcl:/openbao/config.hcl:ro,Z" \
+  -v "$(pwd)/data:/openbao/data:Z" \
+  -v "$(pwd)/tls:/openbao/tls:ro,Z" \
   docker.io/openbao/openbao:latest \
-  sh
+  server \
+  -config=/openbao/config.hcl
   
   podman volume create openbao-certs
 

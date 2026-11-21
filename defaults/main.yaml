@@ -10,6 +10,8 @@ openbao_port: 8200
 openbao_shares: 5
 openbao_threshold: 3
 
+cert_dir: /opt/openbao/tls
+
 # PKCS#11 configuration
 softhsm_conf_path: /etc/softhsm2.conf
 
@@ -21,3 +23,6 @@ openbao_pkcs11:
   key_label: "{{ softhsm_key_label | default('bao-root-key-aes') }}"
   mechanism: AES_GCM
   pin: "{{ softhsm_user_pin | default('') }}"
+
+kmip_endpoint: "host.containers.internal:5696"
+kmip_key_id: "{{ kmip_key_id | default('1') }}"

@@ -22,8 +22,6 @@ log_level = "info"
 
 {% if openbao_seal_type != 'shamir' %}
 
-plugin_directory = "/openbao/plugins"
-
 {% include openbao_seal_template %}
 
 {% endif %}

@@ -1,6 +1,8 @@
 plugin_auto_download = true
 plugin_auto_register = true
 
+plugin_directory = "/openbao/plugins"
+
 plugin "kms" "pkcs11" {
   image = "{{ openbao_pkcs11.plugin_image }}@sha256:{{ openbao_pkcs11.plugin_sha256 }}"
 }
