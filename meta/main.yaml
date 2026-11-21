@@ -7,3 +7,8 @@ galaxy_info:
   galaxy_tags:
     - OpenBao
     - Security
+
+dependencies:
+  - name: ansible-role-firewall
+    src: git+https://github.com/moukail/ansible-role-firewall.git
+    version: main
